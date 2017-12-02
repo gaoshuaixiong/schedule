@@ -1,19 +1,28 @@
 #include <iostream>
 #include <vector>
 #include <stack>
-
 using namespace std;
+
 int get_next(int i,int q);
 stack<int> people_stk; stack<int> day_stk;
 int schdule[7][31]; int flag[6];
+int pre_schdule[7][31];
 int init()
 {
+	for(int i=0;i<7;i++)
+	{
+		for(int j=0;j<31;j++)
+		{
+			pre_schdule[i][j] = -1;
+		}
+	}
 	schdule[0][0] = 1;schdule[0][1] = 1;schdule[0][2] = 0;schdule[0][3] = 1;
 	schdule[1][0] = 1;schdule[1][1] = 1;schdule[1][2] = 0;schdule[1][3] = 1;
 	schdule[2][0] = 1;schdule[2][1] = 0;schdule[2][2] = 1;schdule[2][3] = 1;
 	schdule[3][0] = 1;schdule[3][1] = 0;schdule[3][2] = 1;schdule[3][3] = 1;
 	schdule[4][0] = 0;schdule[4][1] = 1;schdule[4][2] = 1;schdule[4][3] = 0;
 	schdule[5][0] = 0;schdule[5][1] = 1;schdule[5][2] = 1;schdule[5][3] = 0;
+	//pre_schdule[5][25] = 0;
 }
 
 int count_working_day(int people,int day)
@@ -39,7 +48,7 @@ int fit_rule(int i)
 		{
 			return -1;
 		}
-		else if(max_working-min_working>2)
+		else if(max_working-min_working>1)
 		{
 			return -1;
 		}
@@ -58,7 +67,11 @@ int get_next(int day,int people)
 cout<<"get_next"<<day<<" "<<people<<endl;
 if(day<6)
 {
-	if(schdule[people][day-4+3] ==0)
+	if(pre_schdule[people][day]!=-1)
+	{
+		schdule[people][day] = pre_schdule[people][day];
+	}
+	else if(schdule[people][day-4+3] ==0)
 	{
 		schdule[people][day]=1;
 	}
@@ -75,7 +88,11 @@ if(day<6)
 }
 else
 {
-	if(schdule[people][day-4+3] ==0)
+	if(pre_schdule[people][day]!=-1)
+	{
+		schdule[people][day] = pre_schdule[people][day];
+	}
+	else if(schdule[people][day-4+3] ==0)
 	{
 		schdule[people][day]=1;
 	}
@@ -130,20 +147,29 @@ int main(int argc, char const *argv[])
 		}
 		flag_j=0;
 		int temp = fit_rule(i);
-		cout<<"temp is "<<temp<<endl;
+		//cout<<"temp is "<<temp<<endl;
 		if(temp ==0)
 		{
 			print_schdule();
 			continue;
 		}
 		else{
-			i = day_stk.top();
-			flag_j = people_stk.top();
-			people_stk.pop();
-			day_stk.pop();
-			schdule[flag_j][i]=1;
-			flag_j=flag_j+1;
-			i=i-1;
+			if(people_stk.size()!=0)
+			{
+				i = day_stk.top();
+				flag_j = people_stk.top();
+				people_stk.pop();
+				day_stk.pop();
+				schdule[flag_j][i]=1;
+				flag_j=flag_j+1;
+				i=i-1;
+			}
+			else
+			{
+				cout<<"no match schedule"<<endl;
+				return 0;
+			}
+			
 		}
 		// cin>>input;
 	}
